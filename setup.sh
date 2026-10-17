@@ -2,7 +2,47 @@
 set -e
 echo "[ELAINA] Generating project..."
 
-cat > ".gitignore" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/.github/workflows"
+cat > "/home/workdir/artifacts/elaina_pro/.github/workflows/build-apk.yml" <<'__XH_EOF__'
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.5"
+
+      - name: Build debug APK
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: elaina-optimasi-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+__XH_EOF__
+
+mkdir -p "/home/workdir/artifacts/elaina_pro"
+cat > "/home/workdir/artifacts/elaina_pro/.gitignore" <<'__XH_EOF__'
 *.iml
 .gradle
 /local.properties
@@ -16,7 +56,8 @@ cat > ".gitignore" <<'__XH_EOF__'
 
 __XH_EOF__
 
-cat > "README.md" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro"
+cat > "/home/workdir/artifacts/elaina_pro/README.md" <<'__XH_EOF__'
 # ELAINA Optimasi
 
 App optimasi game + crosshair + **turbo tap (macro klik cepat)** via **Shizuku**.
@@ -46,8 +87,8 @@ Atau tekan **Actions → Build APK → Run workflow** untuk build manual.
 
 __XH_EOF__
 
-mkdir -p "app"
-cat > "app/build.gradle.kts" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app"
+cat > "/home/workdir/artifacts/elaina_pro/app/build.gradle.kts" <<'__XH_EOF__'
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -76,8 +117,8 @@ dependencies {
 
 __XH_EOF__
 
-mkdir -p "app/src/main"
-cat > "app/src/main/AndroidManifest.xml" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/AndroidManifest.xml" <<'__XH_EOF__'
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -127,8 +168,8 @@ cat > "app/src/main/AndroidManifest.xml" <<'__XH_EOF__'
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/Bg.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/Bg.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.graphics.Bitmap
@@ -235,8 +276,8 @@ object Bg {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/MainActivity.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/MainActivity.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.Manifest
@@ -870,8 +911,8 @@ class MainActivity : Activity() {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/OverlayService.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/OverlayService.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.app.*
@@ -1283,8 +1324,8 @@ class OverlayService : Service() {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/Painter.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/Painter.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.content.Context
@@ -1398,8 +1439,8 @@ class PickView(ctx: Context) : View(ctx) {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/ShizukuHelper.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/ShizukuHelper.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.content.Context
@@ -1507,8 +1548,8 @@ object ShizukuHelper {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/Spec.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/Spec.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.content.Context
@@ -1547,8 +1588,8 @@ object Store {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/Stats.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/Stats.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.app.ActivityManager
@@ -1637,8 +1678,8 @@ object Stats {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/TurboTap.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/TurboTap.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.content.Context
@@ -1790,8 +1831,8 @@ class TurboTap(private val ctx: Context) {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/java/com/crosshair/pro"
-cat > "app/src/main/java/com/crosshair/pro/Ui.kt" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/java/com/crosshair/pro/Ui.kt" <<'__XH_EOF__'
 package com.crosshair.pro
 
 import android.content.Context
@@ -1906,8 +1947,8 @@ class ShapeImageView(ctx: Context, private val sp: Spec) : ImageView(ctx) {
 
 __XH_EOF__
 
-mkdir -p "app/src/main/res/drawable"
-cat > "app/src/main/res/drawable/elaina.xml" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/res/drawable"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/res/drawable/elaina.xml" <<'__XH_EOF__'
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -1924,8 +1965,8 @@ cat > "app/src/main/res/drawable/elaina.xml" <<'__XH_EOF__'
 
 __XH_EOF__
 
-mkdir -p "app/src/main/res/drawable"
-cat > "app/src/main/res/drawable/ic_fg.xml" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/res/drawable"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/res/drawable/ic_fg.xml" <<'__XH_EOF__'
 <?xml version="1.0" encoding="utf-8"?>
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
     android:drawable="@drawable/elaina"
@@ -1933,16 +1974,16 @@ cat > "app/src/main/res/drawable/ic_fg.xml" <<'__XH_EOF__'
 
 __XH_EOF__
 
-mkdir -p "app/src/main/res/drawable"
-cat > "app/src/main/res/drawable/ic_stat.xml" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/res/drawable"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/res/drawable/ic_stat.xml" <<'__XH_EOF__'
 <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
     <path android:fillColor="#FFFFFF" android:pathData="M11,2h2v7h-2z M11,15h2v7h-2z M2,11h7v2h-7z M15,11h7v2h-7z" />
 </vector>
 
 __XH_EOF__
 
-mkdir -p "app/src/main/res/mipmap-anydpi-v26"
-cat > "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/res/mipmap-anydpi-v26"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" <<'__XH_EOF__'
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/icbg" />
@@ -1951,8 +1992,8 @@ cat > "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" <<'__XH_EOF__'
 
 __XH_EOF__
 
-mkdir -p "app/src/main/res/values"
-cat > "app/src/main/res/values/colors.xml" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/app/src/main/res/values"
+cat > "/home/workdir/artifacts/elaina_pro/app/src/main/res/values/colors.xml" <<'__XH_EOF__'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="icbg">#08080D</color>
@@ -1960,7 +2001,8 @@ cat > "app/src/main/res/values/colors.xml" <<'__XH_EOF__'
 
 __XH_EOF__
 
-cat > "build.gradle.kts" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro"
+cat > "/home/workdir/artifacts/elaina_pro/build.gradle.kts" <<'__XH_EOF__'
 plugins {
     id("com.android.application") version "8.2.2" apply false
     id("org.jetbrains.kotlin.android") version "1.9.22" apply false
@@ -1968,8 +2010,8 @@ plugins {
 
 __XH_EOF__
 
-mkdir -p "gradle/wrapper"
-cat > "gradle/wrapper/gradle-wrapper.properties" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro/gradle/wrapper"
+cat > "/home/workdir/artifacts/elaina_pro/gradle/wrapper/gradle-wrapper.properties" <<'__XH_EOF__'
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
 distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip
@@ -1978,14 +2020,25 @@ zipStorePath=wrapper/dists
 
 __XH_EOF__
 
-cat > "gradle.properties" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro"
+cat > "/home/workdir/artifacts/elaina_pro/gradle.properties" <<'__XH_EOF__'
 org.gradle.jvmargs=-Xmx2048m
-android.useAndroidX=false
+android.useAndroidX=true
+android.enableJetifier=true
 kotlin.code.style=official
 
 __XH_EOF__
 
-cat > "settings.gradle.kts" <<'__XH_EOF__'
+mkdir -p "/home/workdir/artifacts/elaina_pro"
+cat > "/home/workdir/artifacts/elaina_pro/gradlew" <<'__XH_EOF__'
+#!/bin/sh
+# Minimal wrapper - GitHub Actions also uses setup-gradle
+exec gradle "$@"
+
+__XH_EOF__
+
+mkdir -p "/home/workdir/artifacts/elaina_pro"
+cat > "/home/workdir/artifacts/elaina_pro/settings.gradle.kts" <<'__XH_EOF__'
 pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
 dependencyResolutionManagement { repositories { google(); mavenCentral() } }
 rootProject.name = "CrosshairPro"
@@ -1993,44 +2046,4 @@ include(":app")
 
 __XH_EOF__
 
-mkdir -p .github/workflows
-cat > .github/workflows/build-apk.yml <<'__XH_EOF__'
-name: Build APK
-
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: "8.5"
-
-      - name: Build debug APK
-        run: gradle assembleDebug --no-daemon --stacktrace
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: elaina-optimasi-apk
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-
-__XH_EOF__
-
-echo "[ELAINA] Done. Project ready."
-find . -type f | head -40
+echo "[ELAINA] Done."
